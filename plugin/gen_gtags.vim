@@ -25,15 +25,15 @@ if !executable('gtags') && !executable('gtags.exe')
   finish
 endif
 
-if !exists('g:gtags_split')
-  let g:gtags_split = ''
+if !exists('g:gen_gtags_split')
+  let g:gen_gtags_split = ''
 endif
 
 set cscopetag
 set cscopeprg=gtags-cscope
 
 "Hotkey for cscope
-if g:gtags_split == ''
+if g:gen_gtags_split == ''
   nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
   nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
   nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
@@ -42,7 +42,7 @@ if g:gtags_split == ''
   nmap <C-\>i :cs find i <C-R>=expand("<cfile>")<CR><CR>
   nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
   nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
-elseif g:gtags_split == 'h'
+elseif g:gen_gtags_split == 'h'
   nmap <C-\>c :scs find c <C-R>=expand("<cword>")<CR><CR>
   nmap <C-\>d :scs find d <C-R>=expand("<cword>")<CR><CR>
   nmap <C-\>e :scs find e <C-R>=expand("<cword>")<CR><CR>
@@ -51,7 +51,7 @@ elseif g:gtags_split == 'h'
   nmap <C-\>i :scs find i <C-R>=expand("<cfile>")<CR><CR>
   nmap <C-\>s :scs find s <C-R>=expand("<cword>")<CR><CR>
   nmap <C-\>t :scs find t <C-R>=expand("<cword>")<CR><CR>
-elseif g:gtags_split == 'v'
+elseif g:gen_gtags_split == 'v'
   nmap <C-\>c :vert scs find c <C-R>=expand("<cword>")<CR><CR>
   nmap <C-\>d :vert scs find d <C-R>=expand("<cword>")<CR><CR>
   nmap <C-\>e :vert scs find e <C-R>=expand("<cword>")<CR><CR>
@@ -169,6 +169,7 @@ function! UpdateGtags()
 
   echon " in " | echohl Function | echon "[Background]" | echohl None
 endfunction
+
 augroup gen_gtags
     au!
     au BufWritePost * call UpdateGtags()
