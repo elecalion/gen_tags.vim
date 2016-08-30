@@ -82,7 +82,7 @@ function! s:Gtags_db_gen()
 
   "If gtags file exist, run update procedure.
   if filereadable(b:file)
-    call UpdateGtags()
+    call s:UpdateGtags()
     return
   endif
 
@@ -153,7 +153,7 @@ endfunction
 command! -nargs=0 GenGTAGS call s:Gtags_db_gen()
 command! -nargs=0 ClearGTAGS call s:Gtags_clear()
 
-function! UpdateGtags()
+function! s:UpdateGtags()
   let l:path = gen_tags#find_project_root()
   let l:file = l:path . '/' . s:file
 
@@ -172,7 +172,8 @@ endfunction
 
 augroup gen_gtags
     au!
-    au BufWritePost * call UpdateGtags()
+    au BufWritePost * call <SID>UpdateGtags()
+    au BufEnter * call <SID>Add_DBs()
 augroup END
 
 "Add db while startup

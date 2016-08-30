@@ -4,6 +4,11 @@
 " Description: This file contains some command function for other file.
 " ============================================================================
 
+"Keep track of current working path and project root.
+"If current path is not modified, there is no need to update project root.
+let s:current_path = ''
+let s:project_root_path = ''
+
 "Check if has vimproc
 function! gen_tags#has_vimproc()
   let l:has_vimproc = 0
@@ -12,51 +17,56 @@ function! gen_tags#has_vimproc()
 endfunction
 
 "Find the root of the project
-"if the project managed by git, find the git root.
+"If current path is not modified, previous result will be used.
+"If the project managed by git, find the git root.
 "else return the current work directory.
 function! gen_tags#find_project_root()
-  if executable('git')
-    let l:git_cmd = 'git rev-parse --show-toplevel'
+  if s:current_path != getcwd()
+    let s:current_path = getcwd()
+    if executable('git')
+      let l:git_cmd = 'git rev-parse --show-toplevel'
 
-    "check if in git repository.
-    if gen_tags#has_vimproc()
-      call vimproc#system2(l:git_cmd)
-      if vimproc#get_last_status() == 0
-        let l:is_git = 1
+      "check if in git repository.
+      if gen_tags#has_vimproc()
+        call vimproc#system2(l:git_cmd)
+        if vimproc#get_last_status() == 0
+          let l:is_git = 1
+        else
+          let l:is_git = 0
+        endif
       else
-        let l:is_git = 0
+        silent let l:sub = system(l:git_cmd)
+        if v:shell_error == 0
+          let l:is_git = 1
+        else
+          let l:is_git = 0
+        endif
       endif
     else
-      silent let l:sub = system(l:git_cmd)
-      if v:shell_error == 0
-        let l:is_git = 1
+      let l:is_git = 0
+    endif
+
+    if l:is_git
+      if gen_tags#has_vimproc()
+        let l:sub = vimproc#system2(l:git_cmd)
+        let l:sub = substitute(l:sub, '\r\|\n', '', 'g')
+        let s:project_root_path = l:sub
       else
-        let l:is_git = 0
+        silent let l:sub = system(l:git_cmd)
+        let l:sub = substitute(l:sub, '\r\|\n', '', 'g')
+        let s:project_root_path = l:sub
+      endif
+    else
+      if has('win32') || has('win64')
+        let l:path=getcwd()
+        let l:path=substitute(l:path, '\\', '/', 'g')
+        let s:project_root_path = l:path
+      else
+        let s:project_root_path = getcwd()
       endif
     endif
-  else
-    let l:is_git = 0
   endif
-
-  if l:is_git
-    if gen_tags#has_vimproc()
-      let l:sub = vimproc#system2(l:git_cmd)
-      let l:sub = substitute(l:sub, '\r\|\n', '', 'g')
-      return l:sub
-    else
-      silent let l:sub = system(l:git_cmd)
-      let l:sub = substitute(l:sub, '\r\|\n', '', 'g')
-      return l:sub
-    endif
-  else
-    if has('win32') || has('win64')
-      let l:path=getcwd()
-      let l:path=substitute(l:path, '\\', '/', 'g')
-      return l:path
-    else
-      return getcwd()
-    endif
-  endif
+  return s:project_root_path
 endfunction
 
 function! gen_tags#system(cmd)

@@ -196,7 +196,7 @@ command! -nargs=0 EditExt call s:Edit_ext()
 command! -nargs=0 GenExt call s:Ext_db_gen()
 command! -nargs=0 -bang ClearCtags call s:Ctags_clear('<bang>')
 
-function! UpdateCtags()
+function! s:UpdateCtags()
   let l:dir = s:get_project_ctags_dir()
   let l:file = l:dir . "/" . s:ctags_db
 
@@ -209,7 +209,8 @@ endfunction
 
 augroup gen_ctags
     au!
-    au BufWritePost * call UpdateCtags()
+    au BufWritePost * call <SID>UpdateCtags()
+    au BufEnter * call <SID>Add_DBs()
 augroup END
 
 "Add db while startup
