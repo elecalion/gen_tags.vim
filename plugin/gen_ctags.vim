@@ -32,9 +32,13 @@ if !exists('g:gen_ctags_opts')
   let g:gen_ctags_opts = ''
 endif
 
+if !exists('g:gen_ctags_path_delimiters')
+  let g:gen_ctags_path_delimiters = ''
+endif
+
 "Get db name, remove / : with , beacause they are not valid filename
 function! s:get_db_name(path)
-  let l:fold = substitute(a:path, '/\|\\\|\ \|:\|\.', '', 'g')
+  let l:fold = substitute(a:path, '/\|\\\|\ \|:\|\.', g:gen_ctags_path_delimiters, 'g')
   return l:fold
 endfunction
 
